@@ -20,6 +20,8 @@ knitr::opts_chunk$set(echo = TRUE)
 Analiza rynku nieruchomości została przygotowana w oparciu o dane z Banku Danych Lokalnych GUSu. Wykorzystane zostały dane z 2018 roku na temat rynkowej sprzedaży lokali mieszkalnych, stopy bezrobocia rejestrowanego oraz dochodów powiatów w przeliczeniu na 1 mieszkańca. <br>
 W raporcie nie posługiwaliśmy się wartością bezwzględną sprzedanych mieszkań, ale wartością przeliczoną na 1000 mieszkańców. W tym celu wykorzystaliśmy dane o ludności z Narodowego Spisu Powszechnego z 2011 roku. Dane GUSu o dochodach w przeliczeniu na 1 mieszkańca również zostały stworzone w oparciu o ten spis.
 
+To jest nauka gita!
+
 
 ## Przygotowanie danych
 ```{r}
