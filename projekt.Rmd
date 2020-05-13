@@ -71,6 +71,8 @@ Widać, że duży odsetek mieszkań z rynku pierwotnego występuje w: TU WYMIENI
 
 Powiaty, w których mieszkania z rynku pierwotnego stanowią największą część sprzedanych mieszkań:
 ```{r}
+
+
 df %>%
   st_set_geometry(NULL) %>%
   arrange(by = desc(Lokale_pierwotny_procent)) %>%
@@ -97,10 +99,42 @@ ggplot(data = df, aes(fill = Lokale_na_1000_mieszk)) +
   scale_fill_gradient2(low = 'red', high = 'green')
 ```
 
+## Sprzedaż lokali mieszkalnych a liczba ludności
+```{r}
+ggplot(df,aes(x = Lokale, y= Ludność)) +
+  geom_point(size = 2) + geom_smooth(method = lm) +
+labs(title = "Korelacja między liczbą ludności a liczbą sprzedanych lokali", x= "liczba sprzedanych lokali", y = "Liczba ludności")
+cor.test(df$Lokale, df$Ludność)
+
+df %>%
+  st_set_geometry(NULL) %>%
+  arrange(-Ludność) %>%
+  top_n(1) %>%
+  select(JPT_NAZWA_, Ludność, Lokale)
+```
+W celu zbadania korelacji pomiędzy liczbą lokali sprzedanych, a liczbą ludności danego powiatu posłużylismy się wskaźnikiem korelacji Pearsona oraz wykresem. Jak widzimy wartość współczynnika wynosi 0,93, co oznacza bardzo silną korelacji. Jest to wartość zbliżona do 1, która oznacza całkowitą zależność. Wartość p-value jest zdecydowanie mniejsza od 0.05 więc wynik jest istotny i możemy odrzucić hipotezę zerową mówiącą o tym, że korelacja między tymi dwoma zmiennymi jest równa 0.s
 ## Sprzedaż lokali mieszkalnych a dochody powiatu
+```{r}
+ggplot(df,aes(x = Lokale_na_1000_mieszk/1000, y= Dochód_na_mieszkanca)) +
+  geom_point(size = 2) + geom_smooth(method = lm) +
+labs(title = "Korelacja między dochodami mieszkańcóW, a liczbą sprzedanych lokali na 1000 osób", x= "liczba sprzedanych lokali na 1000 osób", y = "dochód na mieszkańca")
+
+cor.test(df$Lokale_na_1000_mieszk, df$Dochód_na_mieszkanca)
+
+
+```
+Powyżej sprawdziliśmy, czy istnieje korelacja pomiędzy lokalami sprzedanymi na 1000 mieszkańców, a dochodami na mieszkańca w danym powiecie. Wykres jednoznacznie wskazuje nam, że nie możemy doszukiwać się tutaj żadnej korelacji pomiędzy tymi zmiennymi. Potwierdza to wskaźnik korelacji Pearsona na poziomie 0,07.
 
 ## Sprzedaż lokali mieszkalnych a stopa bezrobocia
+```{r}
+ggplot(df,aes(x = Lokale_na_1000_mieszk, y= Stopa_bezrobocia)) +
+  geom_point(size = 2) + geom_smooth(method = lm) +
+labs(title = "Korelacja między stopą bezrobocia a liczbą sprzedanych lokali na 1000 osób", x= "liczba sprzedanych lokali na 1000 osób", y = "stopa bezrobocia")
 
+cor.test(df$Lokale_na_1000_mieszk, df$Stopa_bezrobocia)
+
+```
+Podobną analizę dokonaliśmy próbując odpowiedzieć na pytanie, czy istnieje korelacja pomiędzy ilością sprzedanych lokali na 1000 mieszkańców, a stopą bezrobocia w danym powiecie. Tym razem wartość współczynnika Pearsona wyniosła -0,29 co świadczy o umiarkowanej korelacji. Korelacja jest jednak ujemna, tzn., im mniejsza stopa bezrobocia tym większa sprzedaż. Jest to całkiem logiczny wniosek. P-value potwierdza nas w przekonaniu o istotności wyniku.
 
 
 
