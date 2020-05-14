@@ -106,13 +106,14 @@ ggplot(df,aes(x = Lokale, y= Ludność)) +
 labs(title = "Korelacja między liczbą ludności a liczbą sprzedanych lokali", x= "liczba sprzedanych lokali", y = "Liczba ludności")
 cor.test(df$Lokale, df$Ludność)
 
-df %>%
-  st_set_geometry(NULL) %>%
-  arrange(-Ludność) %>%
-  top_n(1) %>%
-  select(JPT_NAZWA_, Ludność, Lokale)
+
 ```
-W celu zbadania korelacji pomiędzy liczbą lokali sprzedanych, a liczbą ludności danego powiatu posłużylismy się wskaźnikiem korelacji Pearsona oraz wykresem. Jak widzimy wartość współczynnika wynosi 0,93, co oznacza bardzo silną korelacji. Jest to wartość zbliżona do 1, która oznacza całkowitą zależność. Wartość p-value jest zdecydowanie mniejsza od 0.05 więc wynik jest istotny i możemy odrzucić hipotezę zerową mówiącą o tym, że korelacja między tymi dwoma zmiennymi jest równa 0.s
+W celu zbadania korelacji pomiędzy liczbą lokali sprzedanych, a liczbą ludności danego powiatu posłużylismy się wskaźnikiem korelacji Pearsona oraz wykresem. Jak widzimy wartość współczynnika wynosi 0,93, co oznacza bardzo silną korelacji. Jest to wartość zbliżona do 1, która oznacza całkowitą zależność. Wartość p-value jest zdecydowanie mniejsza od 0.05 więc wynik jest istotny i możemy odrzucić hipotezę zerową mówiącą o tym, że korelacja między tymi dwoma zmiennymi jest równa 0. 
+```{r}
+df%>%as.data.frame%>%top_n(1,Ludność)%>%select(JPT_NAZWA_,Ludność,Lokale)
+```
+Widzimy, że powiatem ze zdecydowanie największą ilością mieszkańców oraz sprzedanych lokali jest powiat miasta Warszawa.
+
 ## Sprzedaż lokali mieszkalnych a dochody powiatu
 ```{r}
 ggplot(df,aes(x = Lokale_na_1000_mieszk/1000, y= Dochód_na_mieszkanca)) +
