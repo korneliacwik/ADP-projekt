@@ -12,15 +12,14 @@ library(spData)
 library(ggplot2)
 library(dplyr)
 library(scales)
+library(maps)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
 ## Wstęp
 Analiza rynku nieruchomości została przygotowana w oparciu o dane z Banku Danych Lokalnych GUSu. Wykorzystane zostały dane z 2018 roku na temat rynkowej sprzedaży lokali mieszkalnych, stopy bezrobocia rejestrowanego oraz dochodów powiatów w przeliczeniu na 1 mieszkańca. <br>
-W raporcie nie posługiwaliśmy się wartością bezwzględną sprzedanych mieszkań, ale wartością przeliczoną na 1000 mieszkańców. W tym celu wykorzystaliśmy dane o ludności z Narodowego Spisu Powszechnego z 2011 roku. Dane GUSu o dochodach w przeliczeniu na 1 mieszkańca również zostały stworzone w oparciu o ten spis.
-
-To jest nauka gita!
+W raporcie posługiwaliśmy się wartością bezwzględną sprzedanych mieszkań, ale również wartością przeliczoną na 1000 mieszkańców. W celu jej obliczenia wykorzystaliśmy dane o ludności z Narodowego Spisu Powszechnego z 2011 roku. Dane GUSu o dochodach w przeliczeniu na 1 mieszkańca również zostały stworzone w oparciu o ten spis.
 
 
 ## Przygotowanie danych
@@ -60,14 +59,20 @@ df %>%
 ```
 
 ## Podział na rynek pierwotny i wtórny
+Na poniższym wykresie przedstawiono udział mieszkań z rynku pierwotnego we wszystkich transakcjach sprzedaży.
 ```{r}
-ggplot(data = df, aes(fill = Lokale_pierwotny_procent)) +
-  geom_sf() +
-  labs(title = 'Lokale z rynku pierwotnego wśród wszystkich sprzedanych lokali (%)') 
-
+ggplot(data = df) +
+  geom_sf(data = df, aes(fill = Lokale_pierwotny_procent)) +
+  geom_point(data = world.cities[world.cities$country.etc == 'Poland' & world.cities$pop >= 150000,],
+             aes(x=long, y=lat)) +
+  geom_text(data = world.cities[world.cities$country.etc == 'Poland' & world.cities$pop >= 150000,],
+             aes(x=long, y=lat, label = name),size = 3, nudge_y = -0.1) +
+  labs(title = 'Lokale z rynku pierwotnego wśród wszystkich sprzedanych lokali (%)') +
+  scale_fill_gradient2(mid = 'lightblue', high = 'darkblue')
+  
 ```
 
-Widać, że duży odsetek mieszkań z rynku pierwotnego występuje w: TU WYMIENIĆ LOKALIZACJE, MOŻE DODAĆ NAZWY MIAST NA MAPIE. <br> <br>
+Widać, że duży odsetek mieszkań z rynku pierwotnego występuje w powiatach sąsiadujących z największymi polskimi miastami, między innymi Warszawą, Poznaniem czy Krakowem. <br> <br>
 
 Powiaty, w których mieszkania z rynku pierwotnego stanowią największą część sprzedanych mieszkań:
 ```{r}
@@ -85,18 +90,23 @@ df %>%
 ggplot(data = df, aes(fill = Stopa_bezrobocia)) +
   geom_sf() +
   labs(title = 'Stopa bezrobocia rejestrowanego') + 
-  scale_fill_gradient2(low = 'red', high = 'green')
+  scale_fill_gradient2(mid = 'lightblue', high = 'darkblue')
 
 ggplot(data = df, aes(fill = Dochód_na_mieszkanca)) +
   geom_sf() +
   labs(title = 'Dochód powiatu w przeliczeniu na 1 mieszkańca') + 
-  scale_fill_gradient2(low = 'red', high = 'green')
+  scale_fill_gradient2(mid = 'lightblue', high = 'darkblue')
 
 
 ggplot(data = df, aes(fill = Lokale_na_1000_mieszk)) +
   geom_sf() +
   labs(title = 'Liczba sprzedanych lokali mieszkalnych na 1000 mieszkańców') + 
-  scale_fill_gradient2(low = 'red', high = 'green')
+  scale_fill_gradient2(mid = 'lightblue', high = 'darkblue')
+
+ggplot(data = df, aes(fill = Lokale)) +
+  geom_sf() +
+  labs(title = 'Liczba sprzedanych lokali mieszkalnych') + 
+  scale_fill_gradient2(mid = 'lightblue', high = 'darkblue')
 ```
 
 ## Sprzedaż lokali mieszkalnych a liczba ludności
@@ -116,9 +126,9 @@ Widzimy, że powiatem ze zdecydowanie największą ilością mieszkańców oraz 
 
 ## Sprzedaż lokali mieszkalnych a dochody powiatu
 ```{r}
-ggplot(df,aes(x = Lokale_na_1000_mieszk/1000, y= Dochód_na_mieszkanca)) +
+ggplot(df,aes(x = Lokale_na_1000_mieszk, y= Dochód_na_mieszkanca)) +
   geom_point(size = 2) + geom_smooth(method = lm) +
-labs(title = "Korelacja między dochodami mieszkańcóW, a liczbą sprzedanych lokali na 1000 osób", x= "liczba sprzedanych lokali na 1000 osób", y = "dochód na mieszkańca")
+labs(title = "Korelacja między dochodami mieszkańców a liczbą sprzedanych lokali na 1000 osób", x= "liczba sprzedanych lokali na 1000 osób", y = "dochód na mieszkańca")
 
 cor.test(df$Lokale_na_1000_mieszk, df$Dochód_na_mieszkanca)
 
@@ -135,7 +145,10 @@ labs(title = "Korelacja między stopą bezrobocia a liczbą sprzedanych lokali n
 cor.test(df$Lokale_na_1000_mieszk, df$Stopa_bezrobocia)
 
 ```
-Podobną analizę dokonaliśmy próbując odpowiedzieć na pytanie, czy istnieje korelacja pomiędzy ilością sprzedanych lokali na 1000 mieszkańców, a stopą bezrobocia w danym powiecie. Tym razem wartość współczynnika Pearsona wyniosła -0,29 co świadczy o umiarkowanej korelacji. Korelacja jest jednak ujemna, tzn., im mniejsza stopa bezrobocia tym większa sprzedaż. Jest to całkiem logiczny wniosek. P-value potwierdza nas w przekonaniu o istotności wyniku.
+Podobną analizę dokonaliśmy, próbując odpowiedzieć na pytanie, czy istnieje korelacja pomiędzy ilością sprzedanych lokali na 1000 mieszkańców, a stopą bezrobocia w danym powiecie. Tym razem wartość współczynnika Pearsona wyniosła -0,29 co świadczy o umiarkowanej korelacji. Korelacja jest jednak ujemna, tzn., im mniejsza stopa bezrobocia tym większa sprzedaż. Jest to całkiem logiczny wniosek. P-value potwierdza nas w przekonaniu o istotności wyniku.
+
+
+
 
 
 
